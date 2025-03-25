@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"637c89914b579748","type":"text","text":"# Core\nCore is simple. Quickly showcase how to solve homogenous LLS, derivation, and all that.\n\nAlso a good first post. Just get it out of the way. Other parts of my site can ues it.\n\nOutline:\n- Problem: solve the homogenous LLS problem subject to L2 norm being 1\n- Note: existing methods like normal equations and GD don't work, since they both give the trivial solution, which isn't useful\n- Some basic properties to know:\n\t- Orthogonal matrices don't impact the magnitude of vectors they're applied to\n\t- Use the SVD decomposition, and show that we can ignore some matrices\n\t- Then, show that maximizing the last value leads to the lowest norm solution\n\t- As such, last right singular vector yields the solution","x":-180,"y":-300,"width":495,"height":472},
+		{"id":"f74790179c4f72b9","x":-841,"y":322,"width":481,"height":318,"type":"text","text":"# Derivation writeup\n\nMost of it is done now, but the derivation is taking a bit longer than expected. Main thing is just that writing a mathematically rigorous final step to compute $y$ is a bit much.\n\nMight just handwave a bit, or just show that we can rewrite the entire expression in terms of the last singular value and show that to get the minimal result, one hot the last dimension more or less.\n\nFor now, switching off to more prudent work."}
+	],
+	"edges":[
+		{"id":"59b30e95e9fd8c6c","fromNode":"637c89914b579748","fromSide":"bottom","toNode":"f74790179c4f72b9","toSide":"top"}
+	]
+}

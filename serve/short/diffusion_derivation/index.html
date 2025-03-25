@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><title>Adi</title><link rel="stylesheet"  href="/styles.css" ></link><link rel="apple-touch-icon"  sizes="180x180"  href="/apple-touch-icon.png" ></link><link rel="icon"  type="image/png"  sizes="32x32"  href="/favicon-32x32.png" ></link><link rel="icon"  type="image/png"  sizes="16x16"  href="/favicon-16x16.png" ></link><link rel="manifest"  href="/site.webmanifest" ></link><meta name="msapplication-TileColor"  content="#da532c" ></meta><meta name="theme-color"  content="#ffffff" ></meta><link rel="canonical"  href="https://adiy.io/" ></link><link rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"  crossorigin="anonymous" ></link><script defer  src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"  crossorigin="anonymous" ></script><script defer  src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"  crossorigin="anonymous"  onload="renderMathInElement(document.body);" ></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          // customised options
+          // • auto-render specific keys, e.g.:
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\(', right: '\)', display: false},
+              {left: '\[', right: '\]', display: true}
+          ],
+          // • rendering keys, e.g.:
+          throwOnError : false
+        });
+    });
+  </script>
+  </head><div class="standardContent" ><h2>Deriving the equations for DDPM</h2><div><p>The equations for DDPM, the original and most
+     popular class of Diffusion models, has some
+     pretty gnarly math behind it. But, it turns out it's
+     not too bad. Let's derive it!</p><br><br><p>It turns out, you can build an understanding
+     of how to make diffusion models work by working
+     in 2 steps:</p><ul><li>First, derive the equations for forwards and backwards
+        for a single sample, assuming a perfect model i.e. you know exactly what noise was added</li><li>Second, substitute in the model that estimates the noise from a sample. In theory, requires no change in the forward or backwards code, just build a U-Net model and put its fowrard cal in place of the function that knows the perfect noise</li></ul><p>If that doesn't make much sense yet, that's fine. We'll go through more of it as we go.</p></div></div></html>

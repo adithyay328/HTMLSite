@@ -9,4 +9,14 @@
         <loc>https://adiy.io/index.html</loc>
         <changefreq>monthly</changefreq>
       </url>
+    
+      <url>
+        <loc>https://adiy.io/short/diffusion_derivation/index.html</loc>
+        <changefreq>monthly</changefreq>
+      </url>
+    
+      <url>
+        <loc>https://adiy.io/short/homog_lls/index.html</loc>
+        <changefreq>monthly</changefreq>
+      </url>
     </urlset>

@@ -35,11 +35,17 @@ def HTML(*args: List[str], **kwargs: List[str]) -> str:
   """Generate HTML document with DOCTYPE"""
   return f"<!DOCTYPE html>\n" + _tagCore("html", *args, **kwargs)
 
-def Br() -> str:
+def Br(repeats : int = 1) -> str:
   """
   Generate a line break tag,
   which is syntactically
   different than a normal
   HTML tag.
+
+  Also, to make life a lot easier,
+  this one can take in a number allowing
+  for us to repeat breaks over and over again.
+  Not the same as HTML spec, but a nice creature
+  comfort.
   """
-  return "<br>"
+  return "<br>" * repeats
