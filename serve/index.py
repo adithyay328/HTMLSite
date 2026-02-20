@@ -5,10 +5,9 @@ from adihtml import snippets
 currently = Div(
   P("I'm currently"),
   Ul(
-    Li("a junior at ASU going for a double major in CS + Math"),
-    Li("an undergrad researcher working at ", A("ASU Active Perception Group", href="https://faculty.engineering.asu.edu/yezhouyang/")),
-    Li("working on building a NeRF of all of Seattle from some driving data I collected"),
-    Li("implementing and playing with various algos/problems in ML/CV including Diffusion Models, NeRFs, Visual-SLAM and more")
+    Li("a student at ASU going for a double major in CS + Math"),
+    Li("building SLAM systems and end-to-end 3D reconstruction solutions from stereo cameras"),
+    Li("learning how to control drones and solve missions with real-time dense recontruction aboard")
   ),
 )
 
@@ -23,22 +22,22 @@ past = Div(
 )
 
 writingUp = Div(
-  P("I'm currently writing up"),
-  Ul(
-    Li("a whirlwind tour of ML, going over some of the topics we would normally cover at the ML club"),
-    Li('an explainer for the proof for gradient descent; a lot of it is detailed nicely by ', A("this article", href="https://arxiv.org/pdf/2301.11235.pdf"), ", but I want to go through it myself"),
-    Li("a derivation for the SVD Solution to Homogenous LLS. I have it on my old site, but haven't moved it here yet. It's pretty useful in V-SLAM, from triangulation to Fundamental/Essential Matrix computations"),
-    Li("a post on the basics of vector search(LSH, HNSW, etc). They're a super cool application of Neural Nets, and fascinated me during my freshman year"),
-  ),
+ #  P("I'm currently writing up"),
+ #  Ul(
+ #    Li("a whirlwind tour of ML, going over some of the topics we would normally cover at the ML club"),
+ #    Li('an explainer for the proof for gradient descent; a lot of it is detailed nicely by ', A("this article", href="https://arxiv.org/pdf/2301.11235.pdf"), ", but I want to go through it myself"),
+ #    Li("a derivation for the SVD Solution to Homogenous LLS. I have it on my old site, but haven't moved it here yet. It's pretty useful in V-SLAM, from triangulation to Fundamental/Essential Matrix computations"),
+ #    Li("a post on the basics of vector search(LSH, HNSW, etc). They're a super cool application of Neural Nets, and fascinated me during my freshman year"),
+ #  ),
 )
 
 tinkerProjects = Div(
-  P("For fun, I've been working on"),
-  Ul(
-    Li(A("a toy scalar-only AutoGrad library", href="https://github.com/adithyay328/AdiGrad/tree/develop"), " I built, inspired by ", A("MicroGrad", href="https://github.com/karpathy/micrograd"), " by ", A("Karpathy", href="https://karpathy.ai/"), " - not very performant, but can fit Linear Models and MNIST MLP, and in theory can handle most models"),
-    Li(A("SimpleVAE", href="https://github.com/adithyay328/SimpleVAE"), ": some simple VAEs I've trained up, as stepping stones towards building an LDM for NeRF supervision."),
-    Li(A("Linear Regression in OCAML", href="https://github.com/adithyay328/OCAMLLinearRegression/blob/develop/ocaml_lin_reg/bin/main.ml"), ": out of curiosity about how OCAML works, I just built a Linear Regression model in it. As it turns out, OCAML is pretty nice.")
-  ),
+ #  P("For fun, I've been working on"),
+ #  Ul(
+ #    Li(A("a toy scalar-only AutoGrad library", href="https://github.com/adithyay328/AdiGrad/tree/develop"), " I built, inspired by ", A("MicroGrad", href="https://github.com/karpathy/micrograd"), " by ", A("Karpathy", href="https://karpathy.ai/"), " - not very performant, but can fit Linear Models and MNIST MLP, and in theory can handle most models"),
+ #    Li(A("SimpleVAE", href="https://github.com/adithyay328/SimpleVAE"), ": some simple VAEs I've trained up, as stepping stones towards building an LDM for NeRF supervision."),
+ #    Li(A("Linear Regression in OCAML", href="https://github.com/adithyay328/OCAMLLinearRegression/blob/develop/ocaml_lin_reg/bin/main.ml"), ": out of curiosity about how OCAML works, I just built a Linear Regression model in it. As it turns out, OCAML is pretty nice.")
+ #  ),
 )
 
 buildLog = Div(

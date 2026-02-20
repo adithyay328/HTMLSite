@@ -1,6 +1,6 @@
 """
 This module implements the core
-HTML generation code.
+HTML generation code. Stupid simple.
 """
 
 from typing import List
