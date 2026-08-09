@@ -13,3 +13,6 @@ adiyio.conf
 # zips
 adihtml/dist/adihtml-0.1.0-py3-none-any.whl
 adihtml/dist/adihtml-0.1.0.tar.gz
+
+# Issue system: derived SQLite cache (rebuild locally)
+.issuescache.sqlite

@@ -1,0 +1,4 @@
+# Ignore everything in here except this file itself.
+# Per-issue git worktrees live here as worktrees/<issue-uuid-v7>/.
+*
+!.gitignore
