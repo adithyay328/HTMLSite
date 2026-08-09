@@ -259,9 +259,10 @@ def lint_comments(issue_folder: Path, contributor_emails: set[str]) -> list[Lint
     return errors
 
 
-def lint_posts() -> list[LintError]:
+def lint_posts() -> tuple[list[LintError], int, int]:
     """Validate post files, metadata, and matching post-tracking issues."""
     errors: list[LintError] = []
+    failed_post_count = 0
     post_folders = {
         child.name: child
         for child in POSTS_PATH.iterdir()
@@ -273,23 +274,28 @@ def lint_posts() -> list[LintError]:
     }
 
     for post_name, post_folder in sorted(post_folders.items()):
+        post_errors: list[LintError] = []
         for required_file in ("index.py", "meta.json"):
             required_path = post_folder / required_file
             if not required_path.is_file():
-                errors.append(LintError(relative(post_folder), f"Missing {required_file}"))
+                post_errors.append(LintError(relative(post_folder), f"Missing {required_file}"))
 
         meta_path = post_folder / "meta.json"
         if meta_path.is_file():
             try:
                 PostMeta.model_validate_json(meta_path.read_text(encoding="utf-8"))
             except (OSError, ValidationError) as error:
-                errors.append(LintError(relative(meta_path), f"Invalid post metadata: {error}"))
+                post_errors.append(LintError(relative(meta_path), f"Invalid post metadata: {error}"))
 
-    for post_name in sorted(post_folders.keys() - post_issue_folders.keys()):
-        errors.append(LintError(
-            relative(post_folders[post_name]),
-            f"Missing matching issue folder: {relative(POST_ISSUES_PATH / post_name)}",
-        ))
+        if post_name not in post_issue_folders:
+            post_errors.append(LintError(
+                relative(post_folder),
+                f"Missing matching issue folder: {relative(POST_ISSUES_PATH / post_name)}",
+            ))
+
+        errors.extend(post_errors)
+        if post_errors:
+            failed_post_count += 1
 
     for post_name in sorted(post_issue_folders.keys() - post_folders.keys()):
         errors.append(LintError(
@@ -297,7 +303,7 @@ def lint_posts() -> list[LintError]:
             f"Missing matching post folder: {relative(POSTS_PATH / post_name)}",
         ))
 
-    return errors
+    return errors, len(post_folders), failed_post_count
 
 
 # ---------------------------------------------------------------------------
@@ -334,17 +340,35 @@ def main() -> None:
 
     # Second pass: lint everything
     all_errors: list[LintError] = []
+    failed_issue_count = 0
 
     for issue_folder in all_issue_folders:
-        all_errors.extend(lint_task(issue_folder, all_issue_ids, contributor_emails))
-        all_errors.extend(lint_comments(issue_folder, contributor_emails))
+        issue_errors = lint_task(issue_folder, all_issue_ids, contributor_emails)
+        issue_errors.extend(lint_comments(issue_folder, contributor_emails))
+        all_errors.extend(issue_errors)
+        if issue_errors:
+            failed_issue_count += 1
 
-    all_errors.extend(lint_posts())
+    post_errors, total_post_count, failed_post_count = lint_posts()
+    all_errors.extend(post_errors)
+
+    total_issue_count = len(all_issue_folders)
+    passed_issue_count = total_issue_count - failed_issue_count
+    passed_post_count = total_post_count - failed_post_count
 
     # Report
     if not all_issue_folders:
         print("No issues found.")
         print()
+
+    print(
+        f"Issues: {total_issue_count} total, "
+        f"{passed_issue_count} passed, {failed_issue_count} failed."
+    )
+    print(
+        f"Post metadata audits: {total_post_count} total, "
+        f"{passed_post_count} passed, {failed_post_count} failed."
+    )
 
     if all_errors:
         print(f"Found {len(all_errors)} error(s):")
@@ -352,9 +376,10 @@ def main() -> None:
         for error in all_errors:
             print(error)
         print()
+        print("Overall: FAIL")
         sys.exit(1)
     else:
-        print(f"All clear. {len(all_issue_folders)} issue(s) validated, 0 errors.")
+        print("Overall: PASS")
         sys.exit(0)
 
 
