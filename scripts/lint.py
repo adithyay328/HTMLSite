@@ -16,6 +16,9 @@ from pathlib import Path
 
 import frontmatter
 import yaml
+from pydantic import ValidationError
+
+from post_meta import PostMeta
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -23,6 +26,8 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent  # scripts -> repo root (== CWD where the issue system lives)
 CONTRIBUTORS_PATH = REPO_ROOT / "contributors.yaml"
+POSTS_PATH = REPO_ROOT / "serve" / "posts"
+POST_ISSUES_PATH = POSTS_PATH / "issues"
 SKIP_DIRNAMES = {".git", "worktrees"}  # never descend into these when scanning for issues
 
 VALID_STATUSES = {"pending", "in_progress", "done", "blocked"}
@@ -254,6 +259,47 @@ def lint_comments(issue_folder: Path, contributor_emails: set[str]) -> list[Lint
     return errors
 
 
+def lint_posts() -> list[LintError]:
+    """Validate post files, metadata, and matching post-tracking issues."""
+    errors: list[LintError] = []
+    post_folders = {
+        child.name: child
+        for child in POSTS_PATH.iterdir()
+        if child.is_dir() and child.name != "issues" and not child.name.startswith(".")
+    } if POSTS_PATH.is_dir() else {}
+    post_issue_folders = {
+        child.name: child
+        for child in find_issue_folders(POST_ISSUES_PATH)
+    }
+
+    for post_name, post_folder in sorted(post_folders.items()):
+        for required_file in ("index.py", "meta.json"):
+            required_path = post_folder / required_file
+            if not required_path.is_file():
+                errors.append(LintError(relative(post_folder), f"Missing {required_file}"))
+
+        meta_path = post_folder / "meta.json"
+        if meta_path.is_file():
+            try:
+                PostMeta.model_validate_json(meta_path.read_text(encoding="utf-8"))
+            except (OSError, ValidationError) as error:
+                errors.append(LintError(relative(meta_path), f"Invalid post metadata: {error}"))
+
+    for post_name in sorted(post_folders.keys() - post_issue_folders.keys()):
+        errors.append(LintError(
+            relative(post_folders[post_name]),
+            f"Missing matching issue folder: {relative(POST_ISSUES_PATH / post_name)}",
+        ))
+
+    for post_name in sorted(post_issue_folders.keys() - post_folders.keys()):
+        errors.append(LintError(
+            relative(post_issue_folders[post_name]),
+            f"Missing matching post folder: {relative(POSTS_PATH / post_name)}",
+        ))
+
+    return errors
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -292,6 +338,8 @@ def main() -> None:
     for issue_folder in all_issue_folders:
         all_errors.extend(lint_task(issue_folder, all_issue_ids, contributor_emails))
         all_errors.extend(lint_comments(issue_folder, contributor_emails))
+
+    all_errors.extend(lint_posts())
 
     # Report
     if not all_issue_folders:
