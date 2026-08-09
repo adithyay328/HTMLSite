@@ -28,7 +28,7 @@ def builder( fName, loop ):
   env = os.environ.copy()
   env["PYTHONPATH"] = adiHTMLDir
   command = f"cd {parentDir}; python3 {fNameTail}"
-  build = lambda : subprocess.run( command, shell=True, capture_output=True, env=env )
+  build = lambda : subprocess.run( command, shell=True, env=env )
 
   # First, build. Then, store
   # the last mtime
@@ -36,9 +36,6 @@ def builder( fName, loop ):
 
   buildOut = build()
   print( buildOut.returncode )
-  error = buildOut.returncode != 0
-  if error or True:
-    print ( buildOut.stderr.decode() )
 
   while True and loop:
     time.sleep(WATCH_TIME_MS / 1000)

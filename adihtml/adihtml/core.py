@@ -20,7 +20,8 @@ def _tagCore(tagName: str, *args: List[str], **kwargs: List[str]) -> str:
 # List of supported HTML tags
 _supportedTags = [
   "Head", "Link", "Body", "Div",
-  "P", "A", "Title", "Meta", "Ul", "Li", "Span"
+  "P", "A", "Title", "Meta", "Ul", "Li", "Span",
+  "Figure", "Figcaption"
 ]
 
 # Add all heading tags (H1-H6)
@@ -49,3 +50,25 @@ def Br(repeats : int = 1) -> str:
   comfort.
   """
   return "<br>" * repeats
+
+async def Img(src, width: str = None, height: str = None, alt: str = "", **kwargs) -> str:
+  """
+  Generate a self-closing <img> tag.
+
+  src is expected to be an awaitable (e.g. a Task from web2local).
+  Width/height can be px values like "300" or CSS values like "50%".
+  Any extra kwargs become HTML attributes.
+  """
+  resolved_src = await src
+  result = f'<img src="{resolved_src}" alt="{alt}"'
+  if width:
+    result += f' width="{width}"'
+  if height:
+    result += f' height="{height}"'
+  for k, v in kwargs.items():
+    if k == "className":
+      result += f' class="{v}"'
+    else:
+      result += f' {k}="{v}"'
+  result += ">"
+  return result
