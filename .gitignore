@@ -1,10 +1,6 @@
 # Ignore pycache
 **/__pycache__/**
 
-# Ignore any shell files in the
-# root. Risk leaking ips and stuff
-*.sh
-
 # Also ignore the nginx config file. Gives away details about
 # how the site's implemented, not ideal.
 adiyio.conf
