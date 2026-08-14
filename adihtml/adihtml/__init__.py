@@ -1,2 +1,2 @@
 from .core import *
-from .latex import Tex
+from .latex import Tex, InlineTex

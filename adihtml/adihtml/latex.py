@@ -132,7 +132,28 @@ def _svg_intrinsic_size(svg_path: Path):
     return (wp, hp)
 
 
-def Tex(src: str | None = None, *, file: str | None = None, scale: float = 1.0, alt: str = "", **kwargs) -> str:
+_INLINE_TEX_PREAMBLE = (
+    "\\documentclass{article}\n"
+    "\\usepackage{amsmath}\n"
+    "\\usepackage{amssymb}\n"
+    "\\begin{document}\n"
+)
+_INLINE_TEX_POSTAMBLE = "\n\\end{document}\n"
+
+
+def InlineTex(src: str, *, scale: float = 1.0, alt: str = "", **kwargs) -> str:
+    """
+    Render a literal TeX snippet by wrapping it in a standard article document
+    preamble (amsmath + amssymb) and dispatching to Tex. The caller supplies any
+    math delimiters itself (e.g. InlineTex('$A=0$')). Reuses Tex's caching: the
+    hash is of the wrapped document, so inline literals never collide with raw
+    Tex(src=...) literals in tex.json.
+    """
+    wrapped = f"{_INLINE_TEX_PREAMBLE}{src}{_INLINE_TEX_POSTAMBLE}"
+    return Tex(src=wrapped, scale=scale, alt=alt, _directory=_caller_dir(inspect.stack()[1]), **kwargs)
+
+
+def Tex(src: str | None = None, *, file: str | None = None, scale: float = 1.0, alt: str = "", _directory: Path | None = None, **kwargs) -> str:
     """
     Render TeX to an <img> referencing adihtmltex_{sha3_512}.svg.
 
@@ -140,13 +161,17 @@ def Tex(src: str | None = None, *, file: str | None = None, scale: float = 1.0, 
     file, relative to the calling .py) must be provided. `scale` is applied as
     CSS width/height on the <img> (caller-applied; not a cache key). Extra
     **kwargs become HTML attributes (className -> class), like core._tagCore.
+
+    `_directory` is an internal override for the asset/cache directory, used by
+    InlineTex so the SVG lands next to the original caller's .py rather than in
+    the adihtml package dir.
     """
     if (src is None) == (file is None):
         raise ValueError("Tex: provide exactly one of `src` or `file`")
     if "alt" in kwargs:
         raise ValueError("Tex: pass `alt` only as the named parameter, not in kwargs")
 
-    directory = _caller_dir(inspect.stack()[1])
+    directory = _directory if _directory is not None else _caller_dir(inspect.stack()[1])
     data = _load_tex_json(directory)
 
     if src is not None:

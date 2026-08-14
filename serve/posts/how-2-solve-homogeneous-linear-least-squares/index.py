@@ -1,11 +1,13 @@
 from adihtml.core import *
 from adihtml import snippets
-from adihtml import latex
+from adihtml.latex import InlineTex
 
 problemSetup = P(
 """
 In computer vision, and many problems involving geometry, we need to solve specific types of linear least squares problems, specifically problems of the form AX=0.
 """)
+
+
 
 # Generate the HTML content
 title = "Solving Homogenous Linear Least Squares"
@@ -19,6 +21,7 @@ out = HTML(
             Br(),
             H3("Problem Setup"),
             problemSetup,
+            InlineTex("$A=0$"),
             className="standardContent",
         )
     ),
