@@ -132,16 +132,19 @@ def _svg_intrinsic_size(svg_path: Path):
     return (wp, hp)
 
 
-def Tex(src: str | None = None, *, file: str | None = None, scale: float = 1.0, alt: str = "") -> str:
+def Tex(src: str | None = None, *, file: str | None = None, scale: float = 1.0, alt: str = "", **kwargs) -> str:
     """
     Render TeX to an <img> referencing adihtmltex_{sha3_512}.svg.
 
     Exactly one of `src` (literal TeX document source) or `file` (path to a .tex
     file, relative to the calling .py) must be provided. `scale` is applied as
-    CSS width/height on the <img> (caller-applied; not a cache key).
+    CSS width/height on the <img> (caller-applied; not a cache key). Extra
+    **kwargs become HTML attributes (className -> class), like core._tagCore.
     """
     if (src is None) == (file is None):
         raise ValueError("Tex: provide exactly one of `src` or `file`")
+    if "alt" in kwargs:
+        raise ValueError("Tex: pass `alt` only as the named parameter, not in kwargs")
 
     directory = _caller_dir(inspect.stack()[1])
     data = _load_tex_json(directory)
@@ -172,12 +175,19 @@ def Tex(src: str | None = None, *, file: str | None = None, scale: float = 1.0, 
             data["tex_files"][file] = h
         _save_tex_json(directory, data)
 
+    attrs = {"src": svg_name, "alt": alt}
+
     size = _svg_intrinsic_size(svg_path)
-    attrs = ""
     if size is not None and scale != 1.0:
         w, hh = size
-        attrs = f' width="{w * scale}" height="{hh * scale}"'
+        attrs["width"] = str(w * scale)
+        attrs["height"] = str(hh * scale)
     elif scale != 1.0:
-        attrs = f' style="transform: scale({scale}); transform-origin: top left;"'
+        attrs["style"] = f"transform: scale({scale}); transform-origin: top left;"
 
-    return f'<img src="{svg_name}" alt="{alt}"{attrs}>'
+    for k, v in kwargs.items():
+        key = "class" if k == "className" else k
+        attrs[key] = v
+
+    attr_str = "".join(f' {k}="{v}"' for k, v in attrs.items())
+    return f"<img{attr_str}>"
