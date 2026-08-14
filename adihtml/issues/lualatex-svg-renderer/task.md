@@ -1,6 +1,6 @@
 ---
 id: 01a0022b-44fc-7365-a663-cf44b5984eae
-status: in_progress
+status: done
 priority: medium
 assignee: adithya.yerramsetty@gmail.com
 created: 2026-08-14T21:26:30.000Z

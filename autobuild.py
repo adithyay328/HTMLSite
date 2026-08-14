@@ -4,6 +4,7 @@
 # using a mod to the Python path
 import os
 import pathlib
+import re
 import sys
 import subprocess
 import time
@@ -21,6 +22,20 @@ print ( indexes )
 # file has been updated. If so, re-run it
 WATCH_TIME_MS = 300
 
+# A #DEPS line declares an extra file (e.g. a .tex) that the
+# generator depends on; changing it re-runs the builder.
+# Paths are resolved relative to the generator's directory.
+_DEPS_RE = re.compile( r"^\s*#DEPS\s+(\S+)\s*$", re.MULTILINE )
+
+def parse_deps( fName ):
+  """Return absolute paths of every #DEPS-declared file in fName."""
+  parent = pathlib.Path(fName).parent
+  try:
+    src = pathlib.Path(fName).read_text( encoding="utf-8" )
+  except OSError:
+    return []
+  return [ str( (parent / m).resolve() ) for m in _DEPS_RE.findall( src ) ]
+
 def builder( fName, loop ):
   parentDir = str(pathlib.Path(fName).parent.absolute())
   fNameTail = pathlib.Path(fName).name
@@ -31,8 +46,16 @@ def builder( fName, loop ):
   build = lambda : subprocess.run( command, shell=True, env=env )
 
   # First, build. Then, store
-  # the last mtime
-  mtime = os.path.getmtime(fName)
+  # the last mtime for the .py and every #DEPS file
+  watch_paths = [ fName ] + parse_deps( fName )
+  mtimes = {}
+  def refresh():
+    for p in watch_paths:
+      try:
+        mtimes[p] = os.path.getmtime(p)
+      except OSError:
+        mtimes[p] = 0.0
+  refresh()
 
   buildOut = build()
   print( buildOut.returncode )
@@ -40,9 +63,22 @@ def builder( fName, loop ):
   while True and loop:
     time.sleep(WATCH_TIME_MS / 1000)
 
-    if os.path.getmtime(fName) > mtime:
+    changed = False
+    for p in watch_paths:
+      try:
+        cur = os.path.getmtime(p)
+      except OSError:
+        cur = 0.0
+      if cur != mtimes.get(p):
+        changed = True
+        mtimes[p] = cur
+    if changed:
       build()
-      mtime = os.path.getmtime(fName)
+      # A rebuild may have introduced new #DEPS lines; refresh the watch set
+      new_paths = [ fName ] + parse_deps( fName )
+      if new_paths != watch_paths:
+        watch_paths = new_paths
+      refresh()
 
 # First, build all the index.py files once
 for index in indexes:

@@ -16,3 +16,7 @@ adihtml/dist/adihtml-0.1.0.tar.gz
 
 # Issue system: derived SQLite cache (rebuild locally)
 .issuescache.sqlite
+
+# adihtml lualatex renderer: regenerable build artifacts
+adihtmltex_*.svg
+tex.json
