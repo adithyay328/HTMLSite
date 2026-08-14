@@ -1,0 +1,9 @@
+{
+  "title": "How to Solve Homogeneous Linear Least Squares",
+  "LLM_description": "Derive the unit-norm singular-vector solution to homogeneous linear least squares using the singular value decomposition.",
+  "year": 2026,
+  "month": 8,
+  "day": 9,
+  "active": false,
+  "tags": ["linear-algebra", "least-squares", "svd"]
+}
