@@ -121,4 +121,26 @@ def writeHTML():
         f.write(out)
 
 
+def writeLLMsTXT():
+    lines = []
+    lines.append("# Adi's site")
+    lines.append("")
+    lines.append("GET the root page (https://adiy.io/) for the human-readable index.")
+    lines.append("")
+    lines.append("## Posts")
+    lines.append("")
+    for x in chrono:
+        meta = x[1]
+        url = f"https://adiy.io/posts/{x[0]}/index.html"
+        date = f"{meta.year:04d}-{meta.month:02d}-{meta.day:02d}"
+        lines.append(f"- Title: {meta.title}")
+        lines.append(f"  URL: {url}")
+        lines.append(f"  Date: {date}")
+        lines.append(f"  LLM_description: {meta.LLM_description}")
+        lines.append("")
+    with open(__file__.replace("index.py", "llms.txt"), "w") as f:
+        f.write("\n".join(lines))
+
+
 writeHTML()
+writeLLMsTXT()

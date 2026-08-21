@@ -21,7 +21,7 @@ def _tagCore(tagName: str, *args: List[str], **kwargs: List[str]) -> str:
 _supportedTags = [
   "Head", "Link", "Body", "Div",
   "P", "A", "Title", "Meta", "Ul", "Li", "Span",
-  "Figure", "Figcaption"
+  "Figure", "Figcaption", "B"
 ]
 
 # Add all heading tags (H1-H6)

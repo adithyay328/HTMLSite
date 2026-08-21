@@ -498,3 +498,158 @@ To understand an initiative quickly, spin off a sub-agent:
 
 The sub-agent can be given context about what piece of the codebase to look at
 alongside the AGENTS.md.
+
+---
+
+## Posts / Technical Writing
+
+Posts are **technical writeups** — writing about and sharing our projects and
+technical work. They are first-class citizens of the site: every post is a
+page under `serve/`, is tracked as an **issue** in this repo's issue system,
+and is aggregated into a machine-readable `llms.txt` for agents.
+
+### Why Publish
+
+The goal of technical writing here is twofold:
+
+1. **Show off knowledge to the world** — demonstrate what we know and have built.
+2. **Build credibility and market power** — becoming well-known and easy to audit
+   by buyers produces a large sales boost. When selling labor or credibility
+   during value invention, credibility and visibly-similar past projects are
+   what close the deal. That is why publishing is non-negotiable.
+
+### Core Guideline: Non-Mutable Success Criteria
+
+We have a tendency toward perfectionism. The countermeasure is mandatory:
+
+- **Every writeup MUST have a success criteria** stated up front, in the issue's
+  `task.md` and in the post itself.
+- The success criteria is **non-mutable**. Once written, it does not move.
+- **The moment the criteria passes, ship it.** No sitting on it. No polishing
+  past the bar. Open a new post (or an addendum) for the next idea instead.
+
+### Post Types
+
+#### How to {X}
+
+The preferred type, because the form *naturally* carries a termination
+criteria: you either showed how to do the thing (verifiable) or you didn't.
+
+Slug prefix: **`how-2-`** (e.g. `how-2-extend-kalman-with-gps`,
+`how-2-deploy-flask-on-a-pi`).
+
+##### Mandatory Structure
+
+Every "How to" post MUST render these sections, **in this order**, and **all of
+them must be visible to the reader**. These are easy to understand and let the
+reader know exactly what the setup is:
+
+1. **Problem setup** — what exactly is the problem.
+2. **Success criteria** — what needs to be done for us to claim success, and
+   how do we verify it. (This mirrors the non-mutable criteria in the issue's
+   `task.md`; the two must agree.)
+3. **Relevant background** — anything you might need to know to understand
+   this post.
+4. **Method** — what exactly is the methodology. Include images, schematics,
+   code, etc. When possible, **make an independent GitHub repo for each post**
+   so we can re-license and give extra details; link it here.
+5. **Remarks** — anything notable about the implementation.
+6. **Results** — how did it go? Why did it succeed?
+7. **Addendums** — any notes go in extra headings under here.
+
+### File Layout
+
+Posts are authored with **adihtml** (Python emits HTML), matching the existing
+build pipeline (`autobuild.py` watches every `index.py` under `serve/` and
+re-runs it on change; `sitemapGen.py` auto-lists the generated HTML).
+
+```
+serve/
+  index.py                          # homepage — lists active posts
+  llms.txt                           # (generated) agent-facing index of all pages
+  posts/
+    <postname>/                      # one folder per post
+      index.py                       # adihtml — emits index.html
+      meta.json                      # typed metadata (see schema below)
+      ...                            # assets, images, etc.
+    issues/                          # post-tracking issues live here
+      <postname>/                    # EXACT 1:1 name match with a post folder
+        task.md                      # the issue (with non-mutable success criteria)
+        comments/                    # optional work log
+```
+
+- **`<postname>`** is kebab-case. For "How to" posts it is prefixed `how-2-`.
+- There is an **exact 1:1 match** between a post folder `serve/posts/<postname>/`
+  and its issue folder `serve/posts/issues/<postname>/`. Same name, no prefix
+  differences. The linter enforces this correspondence.
+- `active: false` in `meta.json` means the post is **built but unlisted** (the
+  direct URL still works; the homepage and `llms.txt` skip it).
+
+### meta.json Schema
+
+Every post MUST have a `serve/posts/<postname>/meta.json` beside its
+`index.py`. All fields are **mandatory** (tags may be empty `[]`). The schema is
+encoded as a Pydantic model in `scripts/post_meta.py` and validated by
+`scripts/lint.py`.
+
+```json
+{
+  "title": "How to Extend a Kalman Filter with GPS",
+  "LLM_description": "Short agent-facing summary of what this post covers and why.",
+  "year": 2026,
+  "month": 8,
+  "day": 9,
+  "active": true,
+  "tags": ["slam", "python"]
+}
+```
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `title` | string | yes | Non-empty. Human-readable post title. |
+| `LLM_description` | string | yes | Non-empty. Agent-facing summary; aggregated into `llms.txt`. |
+| `year` | int | yes | Publish year (e.g. `2026`). |
+| `month` | int | yes | Publish month, `1`–`12`. |
+| `day` | int | yes | Publish day, `1`–`31`. |
+| `active` | bool | yes | `true` = list on homepage + `llms.txt`; `false` = built but unlisted. |
+| `tags` | string[] | yes | May be empty `[]`. |
+
+### llms.txt
+
+The site serves a root `serve/llms.txt` that tells agents where to look and
+gives a short summary of every page. It is generated by aggregating each post's
+`LLM_description` (and the homepage summary). The generator is tracked as an
+issue (not yet built); until it exists, treat `LLM_description` as the source
+of truth and hand-maintain `llms.txt` if needed.
+
+### Images
+
+- **JPEG preferred.** Use JPEG for photos and continuous-tone images.
+- **PNG/SVG allowed** for line-art and schematics where JPEG artifacts would
+  hurt readability.
+- Do not commit large binaries; keep images small and purposeful.
+
+### Homepage Listing
+
+`serve/index.py` reads every `serve/posts/*/meta.json`, filters to
+`active == true`, sorts by date **descending** (`year`, `month`, `day`) with
+**postname ascending** as the tie-break, and emits links showing the post's
+**title, date, and tags**. Adding a post = drop in `index.py` + `meta.json`;
+the homepage updates automatically on the next build.
+
+### Lint (the gate)
+
+`scripts/lint.py` is the gate. In addition to the issue-system checks, it
+validates the posts layer:
+
+- Every `serve/posts/<postname>/` has both `index.py` and `meta.json`.
+- Every `meta.json` parses and conforms to the Pydantic schema in
+  `scripts/post_meta.py` (all fields mandatory, correct types, valid date
+  ranges, `active` is bool, `tags` is a string array).
+- **1:1 correspondence:** every post folder `serve/posts/<postname>/` has a
+  matching issue at `serve/posts/issues/<postname>/`, and vice versa.
+- **Cache cross-check:** after rebuilding `.issuescache.sqlite`, every issue
+  folder under any `issues/` directory has a row in the `issues` table.
+
+As always: lint first, then rebuild the cache. Lint is the gate; the cache is
+the derived artifact built only from valid data.

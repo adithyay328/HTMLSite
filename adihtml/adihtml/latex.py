@@ -133,9 +133,12 @@ def _svg_intrinsic_size(svg_path: Path):
 
 
 _INLINE_TEX_PREAMBLE = (
-    "\\documentclass{article}\n"
+    "\\documentclass[border=2pt,varwidth]{standalone}\n"
     "\\usepackage{amsmath}\n"
     "\\usepackage{amssymb}\n"
+    "\\usepackage{amsthm}\n"
+    "\\usepackage{tcolorbox}\n"
+    "\\tcbuselibrary{skins, breakable, theorems}\n"
     "\\begin{document}\n"
 )
 _INLINE_TEX_POSTAMBLE = "\n\\end{document}\n"
@@ -143,11 +146,13 @@ _INLINE_TEX_POSTAMBLE = "\n\\end{document}\n"
 
 def InlineTex(src: str, *, scale: float = 1.0, alt: str = "", **kwargs) -> str:
     """
-    Render a literal TeX snippet by wrapping it in a standard article document
-    preamble (amsmath + amssymb) and dispatching to Tex. The caller supplies any
-    math delimiters itself (e.g. InlineTex('$A=0$')). Reuses Tex's caching: the
-    hash is of the wrapped document, so inline literals never collide with raw
-    Tex(src=...) literals in tex.json.
+    Render a literal TeX snippet by wrapping it in a standalone document
+    (page cropped to the content's bounding box, +2pt border) so the emitted
+    <img> sizes to the ink rather than a full Letter page. amsmath + amssymb
+    loaded. The caller supplies any math delimiters itself (e.g.
+    InlineTex('$A=0$')); use \\ for explicit line breaks within a snippet.
+    Reuses Tex's caching: the hash is of the wrapped document, so inline
+    literals never collide with raw Tex(src=...) literals in tex.json.
     """
     wrapped = f"{_INLINE_TEX_PREAMBLE}{src}{_INLINE_TEX_POSTAMBLE}"
     return Tex(src=wrapped, scale=scale, alt=alt, _directory=_caller_dir(inspect.stack()[1]), **kwargs)

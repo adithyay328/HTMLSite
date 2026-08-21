@@ -87,7 +87,7 @@
 html {
   font-family: 'Roboto', sans-serif;
   font-weight: 300;
-  font-size: 17px;
+  font-size: 1em;
   line-height: 24px;
 }
 
@@ -95,19 +95,32 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 300;
 }
 
+/*The following style sizes are copied from lilianweng.github.io*/
+
 h1 {
-  font-size: 2.5em;
-  line-height: 1.1em;
+  font-size: 2.125em;
 }
 
 h2 {
-  font-size: 2em;
+  font-size: 1.5em;
   /* line-height: 1.2; */
 }
 
 h3 {
-  font-size: 1.5em;
+  font-size: 1.125em;
   /* line-height: 1.2; */
+}
+
+h4 {
+  font-size: 1em;
+}
+
+h5 {
+  font-size: .875em;
+}
+
+h6 {
+  font-size: .75em;
 }
 
 /* Decrease the border for <p> */
@@ -176,6 +189,7 @@ a, a:hover, a:visited, a:active {
 .centered {
   position: relative;
   margin: auto;
+  width: fit-content;
 }
 
 #navbarOuter {
@@ -212,4 +226,13 @@ aspect ratio */
   position: relative;
   aspect-ratio: 16/9;
   width: 100%;
+}
+
+.fit {
+  width: fit-content;
+  display: block;
+}
+
+.block {
+  display: block;
 }
