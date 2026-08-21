@@ -1,3 +1,8 @@
+import os
+import json
+
+from pydantic import BaseModel, Field, ConfigDict
+
 from adihtml.core import *
 from adihtml import snippets
 
@@ -49,6 +54,47 @@ past = Div(
     ),
 )
 
+# Before being done, we have to put all our posts here.
+allValidPosts = [ x for x in os.listdir("./posts") if "meta.json" in os.listdir(f"./posts/{x}")]
+
+# We assume this schema; this should be a subset of what's
+# in meta.json
+class MinimalMeta(BaseModel):
+  model_config = ConfigDict(extra="allow")
+
+  year : int
+  month : int
+  day : int
+  active : bool
+  title : str
+  LLM_description : str
+
+def loadJSON(p):
+  with open(p, "r") as f:
+    t = f.read()
+    return MinimalMeta.model_validate_json(t)
+
+# We assume your linting passed, and that has a schema. Simply
+# look for the title, and then we'll inject the link
+configs = [ loadJSON(f"./posts/{x}/meta.json") for x in allValidPosts ] 
+pathsAndConfs = zip(allValidPosts, configs)
+
+# Exclude any that are not active
+activeConfigs = [ conf for conf in pathsAndConfs if conf[1].active ]
+
+# Now, sory by year month day
+chrono = sorted(activeConfigs, key = lambda c: f"{c[1].year}_{c[1].month}_{c[1].day}", reverse=True)
+
+# Now, go ahead and write out the bit
+postBlock = Div(
+"I've written about",
+Ul(
+*[
+    Li(A(f"{x[1].title}", href=f"./posts/{x[0]}/index.html"))
+  for x in chrono]
+)
+)
+
 out = HTML(
     Head(Title("Adi"), snippets.V1_headPreamble()),
     Body(
@@ -62,6 +108,7 @@ out = HTML(
             Br(),
             currently,
             past,
+            postBlock,
             className="standardContent",
         )
     ),
